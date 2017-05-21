@@ -1,3 +1,18 @@
+<?php
+
+// $url_test_post = plugins_url('test/login_test.php', __FILE__);
+// define( 'WP_USE_THEMES', false );
+// require( './wp-load.php' );
+require_once("../../../wp-load.php");
+
+// Constantes
+$url_test_post = plugins_url('test/login_test.php', __FILE__);;
+define('TEST_LOGIN', $url_test_post);
+echo TEST_LOGIN;
+//
+
+ ?>
+
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -23,7 +38,7 @@
         <div class="panel-heading">Autentificación con protocolo Ldap</div>
         <div class="panel-body">
           <!-- formulario -->
-          <form>
+          <form action="<?php echo TEST_LOGIN;  ?>" method="POST">
             <div class="form-group">
               <label for="email">Correo electrónico</label>
               <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico...">

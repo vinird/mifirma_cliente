@@ -30,9 +30,11 @@ function redirect_wp_admin(){
       // Obtiene ruta del plugin
       $custom_login_template_url = plugins_url('login_form.php', __FILE__);
       // Redirecciona a la plantilla con el formulario custom
-      wp_safe_redirect($custom_login_template_url);
+      wp_safe_redirect($custom_login_template_url); // <- Aquí se muestra el formulario
     }
   }
 }
+
+
 
 ?>
