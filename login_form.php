@@ -6,9 +6,9 @@
 require_once("../../../wp-load.php");
 
 // Constantes
-$url_test_post = plugins_url('test/login_test.php', __FILE__);;
-define('TEST_LOGIN', $url_test_post);
-echo TEST_LOGIN;
+$url_test_post = plugins_url('ldap/ldap_login.php', __FILE__);;
+define('LDAP_LOGIN', $url_test_post);
+echo LDAP_LOGIN;
 //
 
  ?>
@@ -38,14 +38,14 @@ echo TEST_LOGIN;
         <div class="panel-heading">Autentificación con protocolo Ldap</div>
         <div class="panel-body">
           <!-- formulario -->
-          <form action="<?php echo TEST_LOGIN;  ?>" method="POST">
+          <form action="<?php echo LDAP_LOGIN;  ?>" method="POST">
             <div class="form-group">
-              <label for="email">Correo electrónico</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico...">
+              <label for="name">Nombre de usuario</label>
+              <input type="name" class="form-control" id="name" name="user[0][name]" placeholder="Ingrese su nombre de usuario...">
             </div>
             <div class="form-group">
               <label for="password">Contraseña</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña...">
+              <input type="password" class="form-control" id="password" name="user[0][password]" placeholder="Ingrese su contraseña...">
             </div>
             <button type="submit" class="btn btn-primary">Ingresar</button>
           </form>
