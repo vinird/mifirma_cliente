@@ -8,7 +8,7 @@ require_once("../../../wp-load.php");
 // Constantes
 $url_test_post = plugins_url('ldap/ldap_login.php', __FILE__);;
 define('LDAP_LOGIN', $url_test_post);
-echo LDAP_LOGIN;
+// echo LDAP_LOGIN;
 //
 
  ?>
