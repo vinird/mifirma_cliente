@@ -24,11 +24,12 @@ $ldappass    = $user_password;
 $ldaptree    = "dc=ldap,dc=mifirmacr,dc=org";
 $ldapbn      = "cn=admin,dc=ldap,dc=mifirmacr,dc=org";
 $ldapbnpass  = "AX7coRbA8dP6UoujeRFLv99Wf3N";
-$domain = home_url( ); //or home
+//$domain = home_url( ); //path home
 // connect 
 $ldapconn = ldap_connect($ldapserver) or die("Could not connect to LDAP server.");
 if($ldapconn) {
     // binding to ldap server
+    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
     ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
     $ldapbind = ldap_bind($ldapconn, $ldapbn, $ldapbnpass);
     // or die ("Error trying to bind: ".ldap_error($ldapconn))
@@ -39,37 +40,32 @@ if($ldapconn) {
         
         
         $result = ldap_search($ldapconn,$ldaptree,$ldapuser) or die ("Error in search query: ".ldap_error($ldapconn));
-        $data = ldap_get_entries($ldapconn, $result);
-
-        $first   = ldap_first_entry($ldapconn, $result);
-        $user_dn = ldap_get_dn($ldapconn, $first);
+        
+        $data = ldap_get_entries($ldapconn, $result);        
         
         // SHOW ALL DATA
         //echo '<h1>Dump all data</h1><pre>';
-        var_dump($user_dn[0]->ou);    
+        // print_r($data);    
         //echo '</pre>';
+
+	        if($data["count"] > 0){
+	        	for ($i=0; $i<$data["count"]; $i++) {
+
+		            $user_uid       = $data[$i]["uid"][0];
+		            $user_ldap_pass = $data[$i]["userpassword"][0];
+		            $user_role      = $data[$i]["employeetype"][0];
+		            
+		        }
+		        //print_r($user_role);
+	        }else{
+	        	header("Location: ../login_form.php?alert=usuario incorrecto");
+        		die();
+	        }	                            
         
-        
-        // iterate over array and print data for each entry
-        // echo '<h1>Show me the users</h1>';
-        for ($i=0; $i<$data["count"]; $i++) {
-            //echo "dn is: ". $data[$i]["dn"] ."<br />";
-            //echo "User: ". $data[$i]["uid"][0] ."<br />";
-            $user_uid = $data[$i]["uid"][0];
-            $user_ldap_pass = $data[$i]["userpassword"][0];
-            //$user_role      = $data[$i]["dn"];
-            //if(isset($data[$i]["mail"][0])) {
-              //  echo "Email: ". $data[$i]["mail"][0] ."<br /><br />";
-            //} else {
-              //  echo "Email: None<br /><br />";
-            //}
-        }
         //var_dump($user_role);
-        // print number of entries found
-        //echo "Number of entries found: " . ldap_count_entries($ldapconn, $result);
     } else {
         echo "LDAP bind failed...";
-        header("Location: ".$domain."/wp-admin");
+        header("Location: ../login_form.php?alert=credenciales con ldap incorrectos");
         die();
     }
 }
@@ -77,10 +73,10 @@ if($ldapconn) {
 ldap_close($ldapconn);
 
 if($user_ldap_pass != $ldappass){
-	header("Location: ".$domain."/wp-admin");
+	header("Location: ../login_form.php?alert=contraseña incorrecta");
     die();
 }else{
-	//create_local_user($user_uid, $user_password);
+	create_local_user($user_uid, $user_password, $user_role);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,14 +89,21 @@ if($user_ldap_pass != $ldappass){
  * @param  [string] $password [contraseña del usuario ldap]
  * @return [type]           [description]
  */
-function create_local_user($name, $password) {
+function create_local_user($name, $password, $role) {
+	// Selecciona tipo de usuario y asigna respectivo ROL
+	if($role == "abonado"){
+		$userdata_role = 'subscriber';
+	}elseif($role == "funcionario"){
+		$userdata_role = 'editor';
+	}
+
   // Crea datos de usuario
   $website = "https://nubila.tech";
   $userdata = array(
     'user_login'  =>  $name,
     'user_url'    =>  $website,
     'user_pass'   =>  $password,
-    'role'        =>  'contributor'  // When creating an user, `user_pass` is expected.
+    'role'        =>  $userdata_role
   );
   // Intenta crear un usuar
   $user_id = wp_insert_user( $userdata ) ;
@@ -134,6 +137,39 @@ function check_user_and_redirect($username) {
     wp_safe_redirect( $redirect_to );
     exit();
   }
+}
+
+function check_ldap_cedula($ced) {
+
+	$ldapconn = ldap_connect($ldapserver) or die("Could not connect to LDAP server.");
+
+	if($ldapconn){
+
+		ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+    	$ldapbind = ldap_bind($ldapconn, $ldapbn, $ldapbnpass);
+
+    	if($ldapbind){
+    		$result = ldap_search($ldapconn,$ldaptree,$ced) or die ("Error in search query: ".ldap_error($ldapconn));
+	        
+	        $data = ldap_get_entries($ldapconn, $result);
+	        
+	        if($data["count"] > 0){
+	        	return true;
+	        }else{
+	        	return false;
+	        }	        
+
+    	}else{
+    		// LDAP bind failed...
+	        header("Location: ../login_form.php?alert=credenciales con ldap incorrectos");
+	        die();
+    	}
+
+	}else{
+		// LDAP conection failed...
+	    header("Location: ../login_form.php?alert=conexión con ldap falló");
+	    die();
+	}
 }
 
 ?>
