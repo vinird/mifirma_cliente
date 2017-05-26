@@ -18,7 +18,9 @@ define('MIFIRMA_CHECKER_DB', $url_mifirma_checker_db);
 //
  ?>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="<?php echo plugins_url('statics/css/bootstrap.min.css', __FILE__); ?>">
+<script src="<?php echo plugins_url('statics/js/jquery-3.2.1.min.js', __FILE__); ?>"></script>
+<script src="<?php echo plugins_url('statics/js/bootstrap.min.js', __FILE__); ?>"></script>
 
 <!-- Navegación -->
 <nav class="navbar navbar-default">
@@ -96,33 +98,35 @@ define('MIFIRMA_CHECKER_DB', $url_mifirma_checker_db);
   </div> <!-- Fin de fila -->
 </div> <!-- Fin de contenedor principal -->
 
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"
-  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-  crossorigin="anonymous"></script>
 <script type="text/javascript">
   jQuery(document).ready(function($) {
 
     var code = null;
+    var url_checker = "<?php echo MIFIRMA_CHECKER_DB; ?>";
     <?php
       if (isset($data)) {
         echo 'code = '."'".$data."'";
+
+        echo '
+
+        ';
       }
      ?>
 
-    var url_checker = "<?php echo MIFIRMA_CHECKER_DB; ?>";
-
-    setInterval(function(){
-      $.ajax({
-        type: 'post',
-        url: url_checker,
-        data: {'code':code},
-        success: function(data) {
-            if (data != null && data != "") {
-              window.location.href="mifirma/redirect.php?data="+data;
-            }
-        }
-      });
-    }, 3000);
+     if (code != null) {
+       setInterval(function(){
+         $.ajax({
+           type: "post",
+           url: url_checker,
+           data: {"code":code},
+           success: function(data) {
+             if (data != null && data != "") {
+               window.location.href="mifirma/redirect.php?data="+data;
+             }
+           }
+         });
+       }, 3000);
+     }
 
   });
 </script>

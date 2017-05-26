@@ -15,15 +15,15 @@ register_activation_hook( __FILE__, 'mifirma_cliente_install_db' );
 register_uninstall_hook( __FILE__, 'mifirma_cliente_uninstall_db' );
 
 add_action('init', 'redirect_wp_admin');
-
-
 add_action( 'wp_loaded','listener' );
+add_action('admin_menu', 'admin_menu_administration');
 
 /**
  * [listener description]
  * @return [type] [description]
  */
 function listener() {
+  // Escucha el post del servidor mifirmacr
   if( isset($_POST) ) {
     if ( isset($_POST["hashsum"]) && isset($_POST["data"]) && isset($_POST["algorithm"]) && isset($_POST["code"])) {
 
@@ -89,34 +89,6 @@ function httpPost($url, $data)
     return $_response;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// function create_routes( $router ) {
-//     $router->add_route('listener
-//     ', array(
-//         'path' => 'listener',
-//         'access_callback' => true,
-//         'page_callback' => 'listener'
-//     ));
-// }
-// add_action( 'wp_router_generate_routes', 'create_routes' );
-//
-// function listener() {
-//     load_template(get_template_directory() . '/user.php', false );
-// }
-//
-// add_action( 'rest_api_init', 'wpshout_register_routes' );
-//
-// function wpshout_register_routes() {
-//     register_rest_route(
-//         'myplugin/v1',
-//         '/author/(?P<id>\d+)',
-//         array(
-//             'methods' => 'GET',
-//             'callback' => 'wpshout_find_author_post_title',
-//         )
-//     );
-// }
-
 /**
  * [mifirma_cliente_install_db description]
  * @return [type] [description]
@@ -144,6 +116,19 @@ function mifirma_cliente_install_db() {
   ) $charset_collate;";
   dbDelta( $sql );
 
+  $table_name = $wpdb->prefix . 'mifirma_institutions';
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+    id mediumint(9) NOT NULL AUTO_INCREMENT,
+    mifirmacr_listen_url varchar(255) NOT NULL,
+    mifirmacr_algorithm varchar(10) NOT NULL,
+    mifirmacr_institution varchar(255) NOT NULL,
+    mifirmacr_private_key text NOT NULL,
+    mifirmacr_public_certificate text NOT NULL,
+    mifirmacr_server_public_key text NOT NULL,
+    PRIMARY KEY  (id)
+  ) $charset_collate;";
+  dbDelta( $sql );
+
   }
 
 
@@ -161,9 +146,97 @@ function mifirma_cliente_uninstall_db() {
   $table_name = $wpdb->prefix . 'mifirma_users';
   $sql = "DROP TABLE IF EXISTS $table_name;";
   dbDelta( $sql );
+
+  $table_name = $wpdb->prefix . 'mifirma_institutions';
+  $sql = "DROP TABLE IF EXISTS $table_name;";
+  dbDelta( $sql );
 }
 
+function admin_menu_administration() {
+  add_menu_page( 'Menu administrativo de mi firma cliente', 'Mi firma', 'manage_options', 'mi-firma-plugin-administration', 'admin_page_init', 'dashicons-post-status
+' );
+}
 
+function admin_page_init() {
+  echo '<link rel="stylesheet" href="'.plugins_url('statics/css/bootstrap.min.css', __FILE__).'">
+  <script src="'.plugins_url('statics/js/jquery-3.2.1.min.js', __FILE__).'"></script>
+  <script src="'.plugins_url('statics/js/bootstrap.min.js', __FILE__).'"></script>';
 
+  echo '
+  <br>
+  <h3>Administración de la institución en mifirmacr</h3>
+  <br>
+  <div class="container">
+  <div class="row">
+  <form class="form-horizontal">
+  <div class="form-group">
+    <label for="mifirmacr_listen_url" class="col-xs-12 col-sm-2 control-label">Url de notificación:</label>
+    <div class="col-xs-12 col-sm-6">
+      <input type="text" class="form-control" id="mifirmacr_listen_url" placeholder="http://example.com">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_algorithm" class="col-xs-12 col-sm-2 control-label">Algoritmo:</label>
+    <div class="col-xs-12 col-sm-2">
+      <input type="text" class="form-control" id="mifirmacr_algorithm" value="sha256" disabled>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_institution" class="col-xs-12 col-sm-2 control-label">Código de la institución:</label>
+    <div class="col-xs-12 col-sm-6">
+      <input type="password" class="form-control" id="mifirmacr_institution" placeholder="OIS0QWIE78297372...">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_private_key" class="col-xs-12 col-sm-2 control-label">RSA llave privada:</label>
+    <div class="col-xs-12 col-sm-6">
+      <textarea class="form-control" id="mifirmacr_private_key" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_public_certificate" class="col-xs-12 col-sm-2 control-label">RSA certificado:</label>
+    <div class="col-xs-12 col-sm-6">
+      <textarea class="form-control" id="mifirmacr_public_certificate" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_server_public_key" class="col-xs-12 col-sm-2 control-label">RSA llave pública:</label>
+    <div class="col-xs-12 col-sm-6">
+      <textarea class="form-control" id="mifirmacr_server_public_key" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-xs-12 col-sm-6">
+      <a onclick="post_institution_data()" class="btn btn-primary">Actualizar datos</a>
+    </div>
+  </div>
+</form>
+</div>
+</div>';
 
+echo '
+  <script>
+  function post_institution_data(){
+    var data = {
+      "mifirmacr_listen_url": $("#mifirmacr_listen_url").val(),
+      "mifirmacr_algorithm": $("#mifirmacr_algorithm").val(),
+      "mifirmacr_institution": $("#mifirmacr_institution").val(),
+      "mifirmacr_private_key": $("#mifirmacr_private_key").val(),
+      "mifirmacr_public_certificate": $("#mifirmacr_public_certificate").val(),
+      "mifirmacr_server_public_key": $("#mifirmacr_server_public_key").val()
+    };
+    $.ajax({
+      type: "post",
+      url: "'.plugins_url('mifirma/institution_update.php', __FILE__).'",
+      data: data,
+      success: function(data) {
+        if (data != null && data != "") {
+          console.log(data);
+        }
+      }
+    });
+  }
+  </script>
+';
+}
 ?>

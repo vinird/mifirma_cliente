@@ -2,7 +2,6 @@
 $data = NULL;
 if ( isset($_POST)) {
   require_once('values/institution.php');
-  require_once('values/mifirma_certs.php');
   require_once("../../../../wp-load.php");
   require_once("../auth/auth.php");
   global $wpdb;
@@ -30,7 +29,7 @@ if ( isset($_POST)) {
       $hash_identification = hash(MIFIRMACR_ALGORITHM, $decrypted->identification);
       $array = array('user_hashsum' => $hash_identification );
       $success = $wpdb->insert( $table_user, $array, array('%s') );
-    
+
       echo $decrypted->identification;
     }
     /////////////////////////
