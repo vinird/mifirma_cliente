@@ -24,7 +24,7 @@ $ldappass    = $user_password;
 $ldaptree    = "dc=ldap,dc=mifirmacr,dc=org";
 $ldapbn      = "cn=admin,dc=ldap,dc=mifirmacr,dc=org";
 $ldapbnpass  = "AX7coRbA8dP6UoujeRFLv99Wf3N";
-//$domain = home_url( ); //path home
+
 // connect 
 $ldapconn = ldap_connect($ldapserver) or die("Could not connect to LDAP server.");
 if($ldapconn) {
@@ -36,7 +36,7 @@ if($ldapconn) {
     	
     // verify binding
     if ($ldapbind) {
-        echo "LDAP bind successful...<br /><br />";
+        //echo "LDAP bind successful...<br /><br />";
         
         
         $result = ldap_search($ldapconn,$ldaptree,$ldapuser) or die ("Error in search query: ".ldap_error($ldapconn));
@@ -53,8 +53,8 @@ if($ldapconn) {
 
 		            $user_uid       = $data[$i]["uid"][0];
 		            $user_ldap_pass = $data[$i]["userpassword"][0];
-		            $user_role      = $data[$i]["employeetype"][0];
-		            
+		            $user_role      = $data[$i]["employeetype"][0];		            
+
 		        }
 		        //print_r($user_role);
 	        }else{
@@ -62,7 +62,7 @@ if($ldapconn) {
         		die();
 	        }	                            
         
-        //var_dump($user_role);
+        // var_dump($user_ced);
     } else {
         echo "LDAP bind failed...";
         header("Location: ../login_form.php?alert=credenciales con ldap incorrectos");
@@ -140,6 +140,10 @@ function check_user_and_redirect($username) {
 }
 
 function check_ldap_cedula($ced) {
+	$ldapserver  = 'ldaps://ldap.mifirmacr.org';
+	$ldapbn      = "cn=admin,dc=ldap,dc=mifirmacr,dc=org";
+	$ldapbnpass  = "AX7coRbA8dP6UoujeRFLv99Wf3N";
+	$ldaptree    = "dc=ldap,dc=mifirmacr,dc=org";
 
 	$ldapconn = ldap_connect($ldapserver) or die("Could not connect to LDAP server.");
 
@@ -149,18 +153,20 @@ function check_ldap_cedula($ced) {
     	$ldapbind = ldap_bind($ldapconn, $ldapbn, $ldapbnpass);
 
     	if($ldapbind){
-    		$result = ldap_search($ldapconn,$ldaptree,$ced) or die ("Error in search query: ".ldap_error($ldapconn));
+    		$result = ldap_search($ldapconn,$ldaptree,"(employeenumber=".$ced.")") or die ("Error in search query: ".ldap_error($ldapconn));
 	        
 	        $data = ldap_get_entries($ldapconn, $result);
 	        
-	        if($data["count"] > 0){
+	        if($data["count"] > 0){	        		        	
+	        	// ced aceptada
 	        	return true;
-	        }else{
+	        }else{	        
+	        	// ced NO aceptada
 	        	return false;
 	        }	        
 
     	}else{
-    		// LDAP bind failed...
+    		//LDAP bind failed...
 	        header("Location: ../login_form.php?alert=credenciales con ldap incorrectos");
 	        die();
     	}
@@ -170,6 +176,7 @@ function check_ldap_cedula($ced) {
 	    header("Location: ../login_form.php?alert=conexión con ldap falló");
 	    die();
 	}
+	ldap_close($ldapconn);
 }
 
 ?>
