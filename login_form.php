@@ -76,14 +76,35 @@ define('MIFIRMA_CHECKER_DB', $url_mifirma_checker_db);
     <!-- Columna autentificación con firma digital -->
     <div class="col-xs-12 col-md-5">
       <div class="panel panel-info">
-        <div class="panel-heading">Autentificación con firma digital</div>
+        <div class="panel-heading">Autentificación con firma digital
+          <?php
+              if (count($_GET) > 0 && $data == null ) {
+                echo '<button
+                class="btn btn-xs btn-danger pull-right"
+                type="button" data-toggle="collapse"
+                data-target="#collapseExample"
+                aria-expanded="false"
+                aria-controls="collapseExample">
+                Error
+                </button>'; }
+                ?>
+        </div>
         <div class="panel-body">
           <?php
           if (isset($data)) {
             echo '<div class="well">Código: ' . $data .'</div>';
+          } else {
+            echo '<div class="collapse" id="collapseExample">
+                    <br>
+                    <div class="well">
+                      '.json_encode($_GET).'
+                    </div>
+                  </div>
+                  ';
           }
            ?>
           <!-- formulario -->
+          <br>
           <form action="<?php echo MIFIRMA_LOGIN; ?>" method="POST">
             <div class="form-group">
               <label for="cedula">Cédula</label>

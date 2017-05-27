@@ -164,11 +164,14 @@ function admin_page_init() {
 
   echo '
   <br>
+  <div class="container">
+  <div class="alert alert-dismissible" role="alert">
+  <strong id="mifirma-message"></strong>
+  </div>
   <h3>Administración de la institución en mifirmacr</h3>
   <br>
-  <div class="container">
   <div class="row">
-  <form class="form-horizontal">
+  <form class="form-horizontal" id="mifirma-form-update-institution">
   <div class="form-group">
     <label for="mifirmacr_listen_url" class="col-xs-12 col-sm-2 control-label">Url de notificación:</label>
     <div class="col-xs-12 col-sm-6">
@@ -194,15 +197,15 @@ function admin_page_init() {
     </div>
   </div>
   <div class="form-group">
-    <label for="mifirmacr_public_certificate" class="col-xs-12 col-sm-2 control-label">RSA certificado:</label>
-    <div class="col-xs-12 col-sm-6">
-      <textarea class="form-control" id="mifirmacr_public_certificate" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
-    </div>
-  </div>
-  <div class="form-group">
     <label for="mifirmacr_server_public_key" class="col-xs-12 col-sm-2 control-label">RSA llave pública:</label>
     <div class="col-xs-12 col-sm-6">
       <textarea class="form-control" id="mifirmacr_server_public_key" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mifirmacr_public_certificate" class="col-xs-12 col-sm-2 control-label">RSA certificado:</label>
+    <div class="col-xs-12 col-sm-6">
+      <textarea class="form-control" id="mifirmacr_public_certificate" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
     </div>
   </div>
   <div class="form-group">
@@ -216,6 +219,9 @@ function admin_page_init() {
 
 echo '
   <script>
+  var alert = $(".alert");
+  alert.hide();
+
   function post_institution_data(){
     var data = {
       "mifirmacr_listen_url": $("#mifirmacr_listen_url").val(),
@@ -225,13 +231,29 @@ echo '
       "mifirmacr_public_certificate": $("#mifirmacr_public_certificate").val(),
       "mifirmacr_server_public_key": $("#mifirmacr_server_public_key").val()
     };
+    alert.hide();
     $.ajax({
       type: "post",
       url: "'.plugins_url('mifirma/institution_update.php', __FILE__).'",
       data: data,
       success: function(data) {
-        if (data != null && data != "") {
-          console.log(data);
+        data = JSON.parse(data);
+        if (data != null) {
+            alert.removeClass("alert-success");
+            alert.removeClass("alert-danger");
+            alert.removeClass("alert-warning");
+            alert.addClass(data.class);
+            var message = $("#mifirma-message").html(data.alert);
+
+
+            alert.fadeIn(500);
+            setTimeout(function(){
+              alert.hide(1000);
+            },5000)
+
+            if (data.class == "alert-success") {
+              $("#mifirma-form-update-institution").trigger("reset");
+            }
         }
       }
     });
