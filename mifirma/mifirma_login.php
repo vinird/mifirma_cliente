@@ -5,48 +5,61 @@ require_once("../../../../wp-load.php");
 // Certificados y valores de la institución
 require_once('values/institution.php');
 require_once('../auth/auth.php');
+require_once('../ldap/ldap_check_ced.php');
 
 // Obtiene el número de cédula
 $cedula = $_POST['cedula'];
 
-$user_exist = check_user_by_identification('usuario_'.$cedula); // Verifica si el usuario existe (../auth/auth.php)
+if (check_ldap_cedula($cedula) ){
 
-if($user_exist) {
-  echo "Error al direccionar";
-} else {
-  $date = date('Y-m-t H:i:s');
-  $data = json_encode(array(
-    'institution' => MIFIRMACR_INSTITUTION,
-    'notification_url' => MIFIRMACR_LISTEN_URL,
-    'identification' => $cedula,
-    'request_datetime' => $date
-  ));
+  $user_exist = check_user_by_identification('usuario_'.$cedula); // Verifica si el usuario existe (../auth/auth.php)
 
-  $data = utf8_encode($data);
-  openssl_public_encrypt($data, $encrypted, MIFIRMACR_SERVER_PUBLIC_KEY, OPENSSL_PKCS1_OAEP_PADDING);
-  $data = base64_encode($encrypted);
+  if($user_exist) {
+    echo "Error al direccionar";
+  } else {
+    $date = date('Y-m-t H:i:s');
+    $data = json_encode(array(
+      'institution' => MIFIRMACR_INSTITUTION,
+      'notification_url' => MIFIRMACR_LISTEN_URL,
+      'identification' => $cedula,
+      'request_datetime' => $date
+    ));
 
-  $hashsum = hash(MIFIRMACR_ALGORITHM, $data);
+    $data = utf8_encode($data);
+    openssl_public_encrypt($data, $encrypted, MIFIRMACR_SERVER_PUBLIC_KEY, OPENSSL_PKCS1_OAEP_PADDING);
+    $data = base64_encode($encrypted);
 
-  $params = array(
-    "data_hash" => $hashsum,
-    "algorithm" => MIFIRMACR_ALGORITHM,
-    "public_certificate" => MIFIRMACR_PUBLIC_CERTIFICATE,
-    'institution' => MIFIRMACR_INSTITUTION,
-    "data" => $data
-  );
+    $hashsum = hash(MIFIRMACR_ALGORITHM, $data);
+
+    $params = array(
+      "data_hash" => $hashsum,
+      "algorithm" => MIFIRMACR_ALGORITHM,
+      "public_certificate" => MIFIRMACR_PUBLIC_CERTIFICATE,
+      'institution' => MIFIRMACR_INSTITUTION,
+      "data" => $data
+    );
 
 
-  $response = http_post('https://mifirmacr.org/autentica/authenticate/', $params);
+    $response = http_post('https://mifirmacr.org/autentica/authenticate/', $params);
 
-  if (isset($_SERVER["HTTP_REFERER"])) {
-    $response = json_decode($response);
-    header("Location: " . $_SERVER["HTTP_REFERER"] . '?' . http_build_query($response));
+    if (isset($_SERVER["HTTP_REFERER"])) {
+      $response = json_decode($response);
+      header("Location: " . $_SERVER["HTTP_REFERER"] . '?' . http_build_query($response));
+    }
   }
+} else{
+  //LDAP bind failed...
+    header("Location: ../login_form.php?alert=La cédula no existe en nuestro directorio.");
+    die();
 }
 
 
-// Create a POST request
+/**
+ * [http_post description]
+ * @param  [type] $url  [description]
+ * @param  [type] $data [description]
+ * @return [type]       [description]
+ */
 function http_post($url, $data)
 {
   $curl = curl_init();
