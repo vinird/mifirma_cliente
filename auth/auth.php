@@ -9,13 +9,20 @@ require_once("../../../../wp-load.php");
  * @return [type]           [description]
  */
 function create_local_user($name, $password, $role = 'subscriber') {
+  // Selecciona tipo de usuario y asigna respectivo ROL
+  $userdata_role = "";
+	if($role == "abonado"){
+		$userdata_role = 'subscriber';
+	}elseif($role == "funcionario"){
+		$userdata_role = 'editor';
+	}
   // Crea datos de usuario
   $website = "https://nubila.tech";
   $userdata = array(
     'user_login'  =>  $name,
     'user_url'    =>  $website,
     'user_pass'   =>  $password,  // When creating an user, `user_pass` is expected.
-    'role'        =>  $role
+    'role'        =>  $userdata_role
   );
   // Intenta crear un usuar
   $user_id = wp_insert_user( $userdata ) ;
@@ -27,8 +34,6 @@ function create_local_user($name, $password, $role = 'subscriber') {
   }
   check_user_and_redirect($name); // <- revisa el usuario y redirecciona
 }
-
-
 
 /**
  * Revisa si el usuario existe y lo redirecciona

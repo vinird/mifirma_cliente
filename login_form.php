@@ -1,5 +1,6 @@
 <?php
 $data = $_GET['code'];
+$role = $_GET['role'];
 
 // $url_ldap_login = plugins_url('test/login_test.php', __FILE__);
 // define( 'WP_USE_THEMES', false );
@@ -144,36 +145,35 @@ $this_form = plugins_url('login_form.php', __FILE__);
 
            <!-- Columna autentificación con firma digital -->
            <div class="col-xs-12 col-md-5">
-                 <div class="panel panel-warning">
-                   <div class="panel-heading">
-                     Autentificación con firma digital
+             <div class="panel panel-warning">
+               <div class="panel-heading">
+                 Autentificación con firma digital
+               </div>
+               <div class="panel-body">
+                 <?php
+                 if (isset($data)) {
+                   echo '<div class="well">Código: ' . $data .'</div>';
+                 }
+                 ?>
+                 <!-- formulario -->
+                 <br>
+                 <form action="<?php echo MIFIRMA_LOGIN; ?>" method="POST">
+                   <div class="form-group">
+                     <label for="cedula">Cédula</label>
+                     <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Digite su número de cédula...">
                    </div>
-                   <div class="panel-body">
-                     <?php
-                     if (isset($data)) {
-                       echo '<div class="well">Código: ' . $data .'</div>';
-                     }
-                     ?>
-                     <!-- formulario -->
-                     <br>
-                     <form action="<?php echo MIFIRMA_LOGIN; ?>" method="POST">
-                       <div class="form-group">
-                         <label for="cedula">Cédula</label>
-                         <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Digite su número de cédula...">
-                       </div>
-                       <button type="submit" class="btn btn-primary"
-                       <?php
-                       if (count($_GET) > 0) {
-                         echo "disabled";
-                       }
-                       ?>
-                       >Enviar</button>
-                     </form>
-                     <!-- Fin de formulario -->
-                   </div>
-                 </div>
-               </div> <!-- Fin de columna autentificación con firma digital -->
-
+                   <button type="submit" class="btn btn-primary"
+                   <?php
+                   if (count($_GET) > 0) {
+                     echo "disabled";
+                   }
+                   ?>
+                   >Enviar</button>
+                 </form>
+                 <!-- Fin de formulario -->
+               </div>
+             </div>
+           </div> <!-- Fin de columna autentificación con firma digital -->
        </div> <!-- Fin de fila -->
      </div> <!-- Fin de contenedor principal -->
 
@@ -183,20 +183,22 @@ $this_form = plugins_url('login_form.php', __FILE__);
          var code = null;
          var url_checker = "<?php echo MIFIRMA_CHECKER_DB; ?>";
          <?php
-         if (isset($data)) {
-           echo 'code = '."'".$data."'";
+         if (isset($data) && isset($role)) {
+           echo 'var code = '."'".$data."';";
+           echo 'var role = '."'".$role."';";
          }
          ?>
 
-         if (code != null) {
+         if (code != null && null != role) {
            setInterval(function(){
              $.ajax({
                type: "post",
                url: url_checker,
                data: {"code":code},
                success: function(data) {
+                 console.log(data);
                  if (data != null && data != "") {
-                   window.location.href="mifirma/redirect.php?data="+data;
+                   window.location.href="mifirma/redirect.php?data=" + data + "&role=" + role;
                  }
                }
              });

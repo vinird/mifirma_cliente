@@ -17,17 +17,17 @@
 
 	    	if($ldapbind){
 	    		$result = ldap_search($ldapconn,$ldaptree,"(employeenumber=".$ced.")") or die ("Error in search query: ".ldap_error($ldapconn));
-		        
-		        $data = ldap_get_entries($ldapconn, $result);		        
-		        
-		        if($data["count"] > 0){   	
+
+		        $data = ldap_get_entries($ldapconn, $result);
+
+		        if($data["count"] > 0){
 		        	// ced aceptada
 		        	$employee_role = $data[0]["employeetype"][0];
 		        	return ["exist" => true, "role" => $employee_role];
-		        }else{	        
+		        }else{
 		        	// ced NO aceptada
 		        	return false;
-		        }	        
+		        }
 
 	    	}else{
 	    		//LDAP bind failed...
