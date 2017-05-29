@@ -135,11 +135,11 @@ $this_form = plugins_url('login_form.php', __FILE__);
                     <form action="<?php echo LDAP_LOGIN;  ?>" method="POST">
                     <div class="form-group">
                         <label for="name">Nombre de usuario</label>
-                        <input type="name" class="form-control" id="name" name="user[0][name]" placeholder="Ingrese su nombre de usuario...">
+                        <input type="name" class="form-control" id="name" name="user[0][name]" placeholder="Ingrese su nombre de usuario..." required>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="user[0][password]" placeholder="Ingrese su contraseña...">
+                        <input type="password" class="form-control" id="password" name="user[0][password]" placeholder="Ingrese su contraseña..." required>
                     </div>
                     <button type="submit" class="btn btn-primary"
                     <?php
