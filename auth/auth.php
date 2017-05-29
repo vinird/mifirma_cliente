@@ -23,7 +23,8 @@ require_once "../../../../wp-load.php";
  * 
  * @return string           [description]
  */
-function create_local_user($name, $password, $role = 'subscriber') {
+function create_local_user($name, $password, $role = 'subscriber') 
+{
     // Selecciona tipo de usuario y asigna respectivo ROL
     $userdata_role = "";
     if ($role == "abonado") {
@@ -36,11 +37,11 @@ function create_local_user($name, $password, $role = 'subscriber') {
     $userdata = array(
       'user_login'  =>  $name,
       'user_url'    =>  $website,
-      'user_pass'   =>  $password,  // When creating an user, `user_pass` is expected.
+      'user_pass'   =>  $password, // When creating an user, `user_pass` is expected.
       'role'        =>  $userdata_role
     );
     // Intenta crear un usuar
-    $user_id = wp_insert_user($userdata) ;
+    $user_id = wp_insert_user($userdata);
     // On success
     if (! is_wp_error($user_id)) {
         echo "User created : ". $user_id; // <- id del usuario creado
@@ -53,9 +54,9 @@ function create_local_user($name, $password, $role = 'subscriber') {
 /**
  * Revisa si el usuario existe y lo redirecciona
  * 
- * @param [string] $username [nombre de usuario o correo]
+ * @param string $username [nombre de usuario o correo]
  * 
- * @return [void]
+ * @return void
  */
 function check_user_and_redirect($username) 
 {
@@ -76,7 +77,7 @@ function check_user_and_redirect($username)
 /**
  * [Verifica si un usuario existe utilizando el nombre de usuario y ceédula]
  *
- * @param [string] $username nombre de usuario (usuario_numerodeDeCedula)
+ * @param string $username nombre de usuario (usuario_numerodeDeCedula)
  * 
  * @return void
  */
