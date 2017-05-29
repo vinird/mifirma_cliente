@@ -2,6 +2,7 @@
 
 // Obtiene los métodos de wordpress
 require_once("../../../../wp-load.php");
+require_once("../auth/auth.php");
 
 // Obtiene los datos del usuario que ingresaron por el formulario
 $user = $_POST['user'];
@@ -79,104 +80,5 @@ if($user_ldap_pass != $ldappass){
 	create_local_user($user_uid, $user_password, $user_role);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Crea o verifica un usuario local
- * Si el usuario existe, trae la información y lo Redirecciona
- * Si el usuario no existe, lo crea y redirecciona
- * @param  [string] $name     [nombre de usuario ldap]
- * @param  [string] $password [contraseña del usuario ldap]
- * @return [type]           [description]
- */
-function create_local_user($name, $password, $role) {
-	// Selecciona tipo de usuario y asigna respectivo ROL
-	if($role == "abonado"){
-		$userdata_role = 'subscriber';
-	}elseif($role == "funcionario"){
-		$userdata_role = 'editor';
-	}
-
-  // Crea datos de usuario
-  $website = "https://nubila.tech";
-  $userdata = array(
-    'user_login'  =>  $name,
-    'user_url'    =>  $website,
-    'user_pass'   =>  $password,
-    'role'        =>  $userdata_role
-  );
-  // Intenta crear un usuar
-  $user_id = wp_insert_user( $userdata ) ;
-  // On success
-  if ( ! is_wp_error( $user_id ) ) {
-    echo "User created : ". $user_id; // <- id del usuario creado
-  } else { // Si el usuario existe
-    echo "Error (puede que usuario exista)";
-  }
-  check_user_and_redirect($name); // <- revisa el usuario y redirecciona
-}
-
-
-
-/**
- * Revisa si el usuario existe y lo redirecciona
- * @param  [string] $username [nombre de usuario o correo]
- */
-function check_user_and_redirect($username) {
-  var_dump($username);
-  // Obtiene  el usuario por el nombre de usuario o correo
-  $user = get_user_by('login', $username );
-  // Se ejecuta si encuentra el usuario
-  if ( !is_wp_error( $user ) )
-  {
-    wp_clear_auth_cookie();
-    wp_set_current_user ( $user->ID );
-    wp_set_auth_cookie  ( $user->ID );
-
-    $redirect_to = user_admin_url();
-    wp_safe_redirect( $redirect_to );
-    exit();
-  }
-}
-
-function check_ldap_cedula($ced) {
-	$ldapserver  = 'ldaps://ldap.mifirmacr.org';
-	$ldapbn      = "cn=admin,dc=ldap,dc=mifirmacr,dc=org";
-	$ldapbnpass  = "AX7coRbA8dP6UoujeRFLv99Wf3N";
-	$ldaptree    = "dc=ldap,dc=mifirmacr,dc=org";
-
-	$ldapconn = ldap_connect($ldapserver) or die("Could not connect to LDAP server.");
-
-	if($ldapconn){
-
-		ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    	$ldapbind = ldap_bind($ldapconn, $ldapbn, $ldapbnpass);
-
-    	if($ldapbind){
-    		$result = ldap_search($ldapconn,$ldaptree,"(employeenumber=".$ced.")") or die ("Error in search query: ".ldap_error($ldapconn));
-	        
-	        $data = ldap_get_entries($ldapconn, $result);
-	        
-	        if($data["count"] > 0){	        		        	
-	        	// ced aceptada
-	        	return true;
-	        }else{	        
-	        	// ced NO aceptada
-	        	return false;
-	        }	        
-
-    	}else{
-    		//LDAP bind failed...
-	        header("Location: ../login_form.php?alert=credenciales con ldap incorrectos");
-	        die();
-    	}
-
-	}else{
-		// LDAP conection failed...
-	    header("Location: ../login_form.php?alert=conexión con ldap falló");
-	    die();
-	}
-	ldap_close($ldapconn);
-}
 
 ?>
