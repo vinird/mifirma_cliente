@@ -86,10 +86,10 @@ if (check_ldap_cedula($cedula)['exist'] ) { // Verifica si el usuario existe (..
  * Realiza una petición de tipo post a la url indicada
  * y envía un array con parametros
  * 
- * @param [string] $url  [url del servidor mifirmacr]
- * @param [array]  $data [datos encriptados]
+ * @param string $url  [url del servidor mifirmacr]
+ * @param array  $data [datos encriptados]
  * 
- * @return [array]        [respuesta del servidor]
+ * @return array        [respuesta del servidor]
  */
 function Http_post($url, $data)
 {

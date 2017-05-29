@@ -41,3 +41,17 @@ Para ingresar al formulario de autentificación con ldap o firma digital se debe
 Al instalar el plugin la dirección de autentificación de wordpress se sobrescribe para dar paso a la autentificación con ldap y firma digital, para ingresar al formulario de autentificación de wordpress se debe accesar a la siguiente dirección:
 
 `Proyecto/wp-login.php`
+
+## Off topic
+
+### Instalación de plugins como complementos global del proyecto
+
+Los siguientes plugins son elementos complementarios al proyecto de mi firma digital.
+
+La finalidad de este es crear un sitio web para la municipalidad de Puntarenas en el cual puedan administrar proyectos, eventos y que además el contenido este disponible en inglés. Y por su puesto que posee autentificación con este plugin.
+
+Los plugins complementarios del proyecto son:
+
+* [Events Manager](https://wordpress.org/plugins/events-manager/)
+* [WP Project Manager](https://wordpress.org/plugins/wedevs-project-manager/)
+* [Polylang](https://es.wordpress.org/plugins/polylang/)
