@@ -63,7 +63,7 @@ $this_form = plugins_url('login_form.php', __FILE__);
                 <?php
                 if (count($_GET) > 0 && empty($data) && empty($_GET[alert]) ) {
                     if ($data == null) {
-                        echo 
+                        echo
                             '<li>
                                 <a>
                                     <button
@@ -96,7 +96,7 @@ $this_form = plugins_url('login_form.php', __FILE__);
             <div class="col-xs-12">
                 <?php
                 if (! isset($data) && empty($data) && empty($_GET[alert])) {
-                    echo 
+                    echo
                         '<div class="collapse" id="collapseExample">
                             <br>
                             <div class="well">
@@ -113,9 +113,9 @@ $this_form = plugins_url('login_form.php', __FILE__);
                     echo '
                     <div class="col-xs-12">
                         <div class="alert alert-danger alert-dismissible" role="alert">
-                        <a href="'.$this_form.'" 
-                            type="button" class="close" 
-                            data-dismiss="alert" 
+                        <a href="'.$this_form.'"
+                            type="button" class="close"
+                            data-dismiss="alert"
                             aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                         </a>
@@ -135,11 +135,11 @@ $this_form = plugins_url('login_form.php', __FILE__);
                     <form action="<?php echo LDAP_LOGIN;  ?>" method="POST">
                     <div class="form-group">
                         <label for="name">Nombre de usuario</label>
-                        <input type="name" class="form-control" id="name" name="user[0][name]" placeholder="Ingrese su nombre de usuario...">
+                        <input type="name" class="form-control" id="name" name="user[0][name]" placeholder="Ingrese su nombre de usuario..." required>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="user[0][password]" placeholder="Ingrese su contraseña...">
+                        <input type="password" class="form-control" id="password" name="user[0][password]" placeholder="Ingrese su contraseña..." required>
                     </div>
                     <button type="submit" class="btn btn-primary"
                     <?php
@@ -171,7 +171,7 @@ $this_form = plugins_url('login_form.php', __FILE__);
                     <form action="<?php echo MIFIRMA_LOGIN; ?>" method="POST">
                     <div class="form-group">
                         <label for="cedula">Cédula</label>
-                        <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Digite su número de cédula...">
+                        <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Digite su número de cédula..." required>
                     </div>
                     <button type="submit" class="btn btn-primary"
                     <?php

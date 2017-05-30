@@ -1,7 +1,7 @@
 <?php
 /**
-Se encarga de tomar la identificación del usuario y verificar 
-si existe en el directorio del ldap, si existe hace la petición 
+Se encarga de tomar la identificación del usuario y verificar
+si existe en el directorio del ldap, si existe hace la petición
 al servidor de mifirmacr enviando los datos de la organización
 encriptados.
 
@@ -22,7 +22,7 @@ require_once '../auth/auth.php';
 require_once '../ldap/ldap_check_ced.php';
 
 // Obtiene el número de cédula
-$cedula = $_POST['cedula'];
+$cedula = trim($_POST['cedula']);
 
 if (check_ldap_cedula($cedula)['exist'] ) { // Verifica si el usuario existe (../ldap/ladap_check_cced.php)\
     if (check_ldap_cedula($cedula)['role'] ) { // Verifica si tiene un rol asignado
@@ -72,7 +72,7 @@ if (check_ldap_cedula($cedula)['exist'] ) { // Verifica si el usuario existe (..
     } else {
         header(
             "Location: ../login_form.php?
-            alert=Este usuario no tiene un rol asignado en nuestro directorio. 
+            alert=Este usuario no tiene un rol asignado en nuestro directorio.
             Por favor comuníquese con el administrador para que le asigne un rol."
         );
         die();
@@ -85,10 +85,10 @@ if (check_ldap_cedula($cedula)['exist'] ) { // Verifica si el usuario existe (..
 /**
  * Realiza una petición de tipo post a la url indicada
  * y envía un array con parametros
- * 
+ *
  * @param string $url  [url del servidor mifirmacr]
  * @param array  $data [datos encriptados]
- * 
+ *
  * @return array        [respuesta del servidor]
  */
 function Http_post($url, $data)
